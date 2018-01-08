@@ -32,7 +32,7 @@ The container configuration is done by defining environmental variables. Druid c
 Run the container with the following command:
 
 ```bash
-docker run -d [-e <configuration key>=<value> [-e ...]] [-v /path/to/hadoop/conf:/etc/hadoop/conf] --name <container's name> -p <host port>:<component port> druid
+docker run -d [-e <configuration key>=<value> [-e ...]] [-v /path/to/hadoop/conf:/etc/hadoop/conf] --name <container name> -p <host port>:<component port> druid
 ```
 
 `-d` means that the container will run detached from the console. If, instead, you want to see the logs on the console, use `-it`. But if you close the console or press ctrl+c, the docker will stop.
