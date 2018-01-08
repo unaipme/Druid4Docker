@@ -11,4 +11,5 @@ WORKDIR /app/druid
 
 COPY start.sh .
 
+EXPOSE 8081 8082 8083 8088 8090 8091 8100-8199
 ENTRYPOINT ["/bin/bash", "start.sh"]

@@ -29,5 +29,22 @@ The container configuration is done by defining environmental variables. Druid c
 * __STORAGE_TYPE__: Deep storage type in which to store the segments. To choose between: `{hdfs, s3, local}`. S3 is still not supported by this image and local storage is not recommended for production, though. If HDFS is chosen, the following configuration must also be provided:
   * HDFS_CONF_DIR: Druid needs to know about the Hadoop cluster. To do so, it requires the `core-site.xml` and `hdfs-site.xml` files to be in the configuration directory. For this Docker image, that can be managed by using a volume. Mount the directory in which the two files are as a volume and optionally set this variable to the directory inside the container to which the volume was mounted. Defaults to `/etc/hadoop/conf`.
 
+Run the container with the following command:
+
+```bash
+docker run -d [-e <configuration key>=<value> [-e ...]] [-v /path/to/hadoop/conf:/etc/hadoop/conf] --name <container's name> -p <host port>:<component port> druid
+```
+
+`-d` means that the container will run detached from the console. If, instead, you want to see the logs on the console, use `-it`. But if you close the console or press ctrl+c, the docker will stop.
+`-e` is used to set an environmental variable. Use this to define the configuration with the variable names listed above.
+`-v` is used to mount a volume. If HDFS will be the deep storage, you need to mount the directory with the HDFS configuration files to the container's `/etc/hadoop/conf` directory.
+`--name` gives a name to the container. The recommendation is to give the container the same name as the Druid component it's running.
+`-p` exposes a port and binds it to one port of the host. If you use `-P` instead, all ports mentioned in the Dockerfile will be exposed. This is not recommended though, because ports that will never be used (and moreover can cause trouble) will be open to the public. Check the list below to know what ports to expose depending on component you are running.
+* The __coordinator__ uses port 8081.
+* The __broker__ uses port 8082.
+* The __historical__ uses port 8083.
+* The __router__ uses port 8088.
+* The __middle manager__ uses the port 8091 at all times, and its peons use ports in range 8100-8199.
+
 If anything's wrong with the configuration, the log will let you know.
 

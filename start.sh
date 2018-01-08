@@ -10,10 +10,28 @@ if [ "$_COMP" != "historical" ] && [ "$_COMP" != "broker" ] && [ "$_COMP" != "co
 	echo "Variable DRUID_COMPONENT must be one of {historical, broker, coordinator, overlord, middleManager}"
 	exit 1
 fi
+case $_COMP in
+	broker)
+		_MEMORY=${MEMORY-24g}
+		;;
+	coordinator)
+		_MEMORY=${MEMORY-3g}
+		;;
+	historical)
+		_MEMORY=${MEMORY-8g}
+		;;
+	middleManager)
+		_MEMORY=${MEMORY-64m}
+		;;
+	overlord)
+		_MEMORY=${MEMORY-3g}
+		;;
+esac
 
 _HDFS_CONF_DIR=${HDFS_CONF_DIR-/etc/hadoop/conf}
 _CONF_DIR=conf/druid/_common
 _CONF_FILE=$_CONF_DIR/common.runtime.properties
+_JVM_ARG_FILE=conf/druid/$_COMP/jvm.config
 _EXTENSIONS_LOADLIST=("druid-kafka-eight" "druid-s3-extensions" "druid-histogram" "druid-datasketches" "druid-lookups-cached-global" "mysql-metadata-storage")
 if [ "$ZK_SERVICE_HOST" == "" ]; then
 	echo "Zookeeper hosts must be set: ZK_SERVICE_HOST=<host>:<port>[, <host2>:<port2>...]"
@@ -26,10 +44,16 @@ function addext {
 	_EXTENSIONS_LOADLIST[${#_EXTENSIONS_LOADLIST[@]}]=$1
 }
 
+_DEF_CONF=
 function addcnf {
 	if [ "$2" != "" ]; then
 		_DEF_CONF="$_DEF_CONF$1=$2\n"
 	fi
+}
+
+_DEF_ARGS=
+function addarg {
+	_DEF_ARGS="$_DEF_ARGS$1\n"
 }
 
 if [ "$METADATA_URI" == "" ] && [ "$METADATA_HOST" == "" ]; then
@@ -148,5 +172,21 @@ addcnf "druid.emitter" "logging"
 addcnf "druid.emitter.logging.logLevel" "info"
 addcnf "druid.indexing.doubleStorage" "double"
 
+_MAX_DIRECT_MEMORY=${MAX_DIRECT_MEMORY-5g}
+
+mv "$_JVM_ARG_FILE" "$_JVM_ARG_FILE.backup"
+
+addarg "-server"
+addarg "-Xms$_MEMORY"
+addarg "-Xmx$_MEMORY"
+if [ "$_COMP" == "broker" ] || [ "$_COMP" == "historical" ]; then
+	addarg "-XX:MaxDirectMemorySize=5g"
+fi
+addarg "-Duser.timezone=UTC"
+addarg "-Dfile.encoding=UTF-8"
+addarg "-Djava.io.tmpdir=var/tmp"
+addarg "-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager"
+
 printf "$_DEF_CONF" > "$_CONF_FILE"
+printf -- "$_DEF_ARGS" > "$_JVM_ARG_FILE"
 java $(cat conf/druid/$_COMP/jvm.config | xargs) -cp "conf/druid/_common:conf/druid/$_COMP:lib/*" io.druid.cli.Main server $_COMP
