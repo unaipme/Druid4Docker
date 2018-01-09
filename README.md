@@ -43,7 +43,7 @@ docker run -d [-e <configuration key>=<value> [-e ...]] [-v /path/to/hadoop/conf
 * The __coordinator__ uses port 8081.
 * The __broker__ uses port 8082.
 * The __historical__ uses port 8083.
-* The __router__ uses port 8088.
+* The __overlord__ uses port 8090.
 * The __middle manager__ uses the port 8091 at all times, and its peons use ports in range 8100-8199.
 
 If anything's wrong with the configuration, the log will let you know.
