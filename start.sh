@@ -183,6 +183,7 @@ mv "$_JVM_ARG_FILE" "$_JVM_ARG_FILE.backup"
 addarg "-server"
 addarg "-Xms$_HEAP_SIZE"
 addarg "-Xmx$_HEAP_SIZE"
+_MAX_DIRECT_MEMORY=$MAX_DIRECT_MEMORY
 if [ "$_MAX_DIRECT_MEMORY" != "" ]; then
 	addarg "-XX:MaxDirectMemorySize=$_MAX_DIRECT_MEMORY"
 fi
