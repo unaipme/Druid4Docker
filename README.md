@@ -28,6 +28,8 @@ The container configuration is done by defining environmental variables. Druid c
 * __METADATA_PASSWORD__: Password of the username previously defined.
 * __STORAGE_TYPE__: Deep storage type in which to store the segments. To choose between: `{hdfs, s3, local}`. S3 is still not supported by this image and local storage is not recommended for production, though. If HDFS is chosen, the following configuration must also be provided:
   * HDFS_CONF_DIR: Druid needs to know about the Hadoop cluster. To do so, it requires the `core-site.xml` and `hdfs-site.xml` files to be in the configuration directory. For this Docker image, that can be managed by using a volume. Mount the directory in which the two files are as a volume and optionally set this variable to the directory inside the container to which the volume was mounted. Defaults to `/etc/hadoop/conf`.
+* HEAP_SIZE: Defines the heap size that will be passed as a JVM argument with `-Xmx` and `-Xms`. Each component has its default heap size value, which are the values that are set out-of-the-box: `24g` for the broker, `3g` for the coordinator, `8g` for the historical, `64m` for the middle manager, and `3g` for the overlord.
+* MAX_DIRECT_MEMORY: Sets the max direct memory access. It's passed as the JVM argument `-XX:MaxDirectMemorySize=`. This setting comes by default set to `4096m` in the JVM arguments for components broker and historical. In this script, __it's ignored if not set__.
 
 Run the container with the following command:
 
@@ -47,4 +49,5 @@ docker run -d [-e <configuration key>=<value> [-e ...]] [-v /path/to/hadoop/conf
 * The __middle manager__ uses the port 8091 at all times, and its peons use ports in range 8100-8199.
 
 If anything's wrong with the configuration, the log will let you know.
+
 

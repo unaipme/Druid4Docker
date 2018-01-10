@@ -27,19 +27,19 @@ function err {
 _COMP=$DRUID_COMPONENT
 case $_COMP in
 	broker)
-		_MEMORY=${MEMORY-24g}
+		_HEAP_SIZE=${HEAP_SIZE-24g}
 		;;
 	coordinator)
-		_MEMORY=${MEMORY-3g}
+		_HEAP_SIZE=${HEAP_SIZE-3g}
 		;;
 	historical)
-		_MEMORY=${MEMORY-8g}
+		_HEAP_SIZE=${HEAP_SIZE-8g}
 		;;
 	middleManager)
-		_MEMORY=${MEMORY-64m}
+		_HEAP_SIZE=${HEAP_SIZE-64m}
 		;;
 	overlord)
-		_MEMORY=${MEMORY-3g}
+		_HEAP_SIZE=${HEAP_SIZE-3g}
 		;;
 	"")
 		err "You must define which component to launch: DRUID_COMPONENT={historical, broker, coordinator, overlord, middleManager}"
@@ -178,15 +178,13 @@ addcnf "druid.emitter" "logging"
 addcnf "druid.emitter.logging.logLevel" "info"
 addcnf "druid.indexing.doubleStorage" "double"
 
-_MAX_DIRECT_MEMORY=${MAX_DIRECT_MEMORY-5g}
-
 mv "$_JVM_ARG_FILE" "$_JVM_ARG_FILE.backup"
 
 addarg "-server"
-addarg "-Xms$_MEMORY"
-addarg "-Xmx$_MEMORY"
-if [ "$_COMP" == "broker" ] || [ "$_COMP" == "historical" ]; then
-	addarg "-XX:MaxDirectMemorySize=5g"
+addarg "-Xms$_HEAP_SIZE"
+addarg "-Xmx$_HEAP_SIZE"
+if [ "$_MAX_DIRECT_MEMORY" != "" ]; then
+	addarg "-XX:MaxDirectMemorySize=$_MAX_DIRECT_MEMORY"
 fi
 addarg "-Duser.timezone=UTC"
 addarg "-Dfile.encoding=UTF-8"
