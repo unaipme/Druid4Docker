@@ -87,9 +87,14 @@ case $METADATA_TYPE in
 		_METADATA_USER=$METADATA_USER
 		_METADATA_PASSWORD=$METADATA_PASSWORD
 		if [ ! -d extensions/mysql-metadata-storage ]; then
-			wget http://static.druid.io/artifacts/releases/mysql-metadata-storage-0.11.0.tar.gz
-			tar -xzf mysql-metadata-storage-0.11.0.tar.gz -C extensions
-			rm mysql-metadata-storage-0.11.0.tar.gz -f
+			if [ -d /mnt/mesos/sandbox/mysql-metadata-storage ]; then
+				ln -s /mnt/mesos/sandbox/mysql-metadata-storage extensions/mysql-metadata-storage
+			else
+				wget http://static.druid.io/artifacts/releases/mysql-metadata-storage-0.11.0.tar.gz
+				tar -xzf mysql-metadata-storage-0.11.0.tar.gz -C extensions
+				rm mysql-metadata-storage-0.11.0.tar.gz -f
+			fi
+
 		fi
 		;;
 	postgresql | postgres)
